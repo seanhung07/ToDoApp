@@ -142,6 +142,7 @@ export default {
         id: this.idfortodo,
         title: this.newTodo,
         completed: false,
+        edit:false
       });
       (this.newTodo = ""), this.idfortodo++;
     },
