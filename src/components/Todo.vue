@@ -1,19 +1,23 @@
 <template>
   <div>
     <input
-      type="text"
-      class="todo-input"
-      placeholder="Add to the list"
-      v-model="newTodo"
-      @keyup.enter="addtodo"
+        type="text"
+        class="todo-input"
+        placeholder="Add to the list"
+        v-model="newTodo"
+        @keyup.enter="addtodo"
     />
     <transition-group name="fade">
-      <div
-        v-for="(todo, index) in todosfilter"
-        :key="todo.id"
-        class="todo-list"
+      <todo-item
+          v-for="(todo, index) in todosfilter"
+          :key="todo.id"
+          :todo="todo"
+          :index="index"
+          :checkAll="!anyremaining"
+          @removedTodo="removetodo"
+          @finishedEdit="finishedEdit"
       >
-        <div class="todo-list-left">
+        <!-- <div class="todo-list-left">
           <input type="checkbox" v-model="todo.completed" />
           <div
             v-if="!todo.edit"
@@ -36,13 +40,14 @@
         </div>
         <div class="remove-item" @click="removetodo(index)">
           &times;
-        </div>
-      </div>
+        </div> -->
+      </todo-item>
+      >
     </transition-group>
     <div class="extra-container">
       <div>
         <label>
-          <input type="checkbox" :checked="!anyremaining" @change="checkall" />
+          <input type="checkbox" :checked="!anyremaining" @change="checkall"/>
           Check All
         </label>
       </div>
@@ -51,32 +56,32 @@
     <div class="extra-container">
       <div>
         <button
-          class="btn btn-secondary mr-1"
-          :class="{ active: filter == 'all' }"
-          @click="filter = 'all'"
+            class="btn btn-secondary mr-1"
+            :class="{ active: filter == 'all' }"
+            @click="filter = 'all'"
         >
           ALL
         </button>
         <button
-          class="btn btn-secondary mr-1"
-          :class="{ active: filter == 'active' }"
-          @click="filter = 'active'"
+            class="btn btn-secondary mr-1"
+            :class="{ active: filter == 'active' }"
+            @click="filter = 'active'"
         >
           Active
         </button>
         <button
-          class="btn btn-secondary mr-1"
-          :class="{ active: filter == 'completed' }"
-          @click="filter = 'completed'"
+            class="btn btn-secondary mr-1"
+            :class="{ active: filter == 'completed' }"
+            @click="filter = 'completed'"
         >
           Completed
         </button>
       </div>
       <div>
         <button
-          v-if="showclearall"
-          class="btn btn-success"
-          @click="clearcompleted"
+            v-if="showclearall"
+            class="btn btn-success"
+            @click="clearcompleted"
         >
           Clear Completed
         </button>
@@ -86,12 +91,17 @@
 </template>
 
 <script>
+import TodoItem from './TodoItem'
+
 export default {
   name: "Todo",
+  components: {
+    TodoItem,
+  },
   data() {
     return {
       newTodo: "",
-      idfortodo: 3,
+      idfortodo: 2,
       beforeEditCache: "",
       filter: "all",
       todos: [
@@ -103,14 +113,6 @@ export default {
         },
       ],
     };
-  },
-  directives: {
-    focus: {
-      // directive definition
-      inserted: function(el) {
-        el.focus();
-      },
-    },
   },
   computed: {
     remaining() {
@@ -142,7 +144,7 @@ export default {
         id: this.idfortodo,
         title: this.newTodo,
         completed: false,
-        edit:false
+        edit: false
       });
       (this.newTodo = ""), this.idfortodo++;
     },
@@ -169,6 +171,9 @@ export default {
     clearcompleted() {
       this.todos = this.todos.filter((todo) => !todo.completed);
     },
+    finishedEdit(data) {
+      this.todos.splice(data.index, 1, data.todo)
+    }
   },
 };
 </script>
@@ -180,33 +185,40 @@ export default {
   padding: 10px 18px;
   font-size: 18px;
   margin-bottom: 16px;
+
   &:focus {
     outline: 0;
   }
 }
-.todo-list {
+
+.todo-item {
   margin-bottom: 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
+
 .remove-item {
   cursor: pointer;
   font-size: 30px;
   margin-left: 14px;
+
   &:hover {
     color: red;
   }
 }
+
 .todo-list-left {
   display: flex;
   align-items: center;
 }
+
 .todo-list-label {
   padding: 10px;
-  border: 1 px solid white;
+  border: 1px solid white;
   margin-left: 12px;
 }
+
 .todo-list-edit {
   font-size: 24px;
   color: #2c3e50;
@@ -214,14 +226,17 @@ export default {
   width: 100%;
   padding: 10px;
   border: 1px solid #cccccc;
+
   &:focus {
     outline: none;
   }
 }
+
 .completed {
   text-decoration: line-through;
   color: red;
 }
+
 .extra-container {
   display: flex;
   align-items: center;
@@ -235,11 +250,14 @@ export default {
 .fade-enter-active {
   transition: all 0.3s ease;
 }
+
 .fade-leave-active {
   transition: all 0.8s cubic-bezier(1, 0.5, 0.8, 1);
 }
+
 .fade-enter, .fade-leave-to
-/* .slide-fade-leave-active below version 2.1.8 */ {
+  /* .slide-fade-leave-active below version 2.1.8 */
+{
   transform: translateX(10px);
   opacity: 0;
 }
