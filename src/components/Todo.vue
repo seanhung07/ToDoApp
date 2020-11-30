@@ -9,38 +9,11 @@
     />
     <transition-group name="fade">
       <todo-item
-          v-for="(todo, index) in todosfilter"
+          v-for="todo in todosfilter"
           :key="todo.id"
           :todo="todo"
-          :index="index"
           :checkAll="!anyremaining"
-          @removedTodo="removetodo"
-          @finishedEdit="finishedEdit"
       >
-        <!-- <div class="todo-list-left">
-          <input type="checkbox" v-model="todo.completed" />
-          <div
-            v-if="!todo.edit"
-            @dblclick="edittodo(todo)"
-            class="todo-list-label"
-            :class="{ completed: todo.completed }"
-          >
-            {{ todo.title }}
-          </div>
-          <input
-            v-else
-            type="text"
-            v-model="todo.title"
-            class="todo-list-edit"
-            @blur="donetodo(todo)"
-            @keyup.enter="donetodo(todo)"
-            @keyup.esc="canceledit(todo)"
-            v-focus
-          />
-        </div>
-        <div class="remove-item" @click="removetodo(index)">
-          &times;
-        </div> -->
       </todo-item>
       >
     </transition-group>
@@ -106,13 +79,17 @@ export default {
       filter: "all",
       todos: [
         {
-          id: 1,
-          title: "Default Item (Delete first)",
-          completed: false,
-          edit: false,
+          'id': 1,
+          'title': "Default Item (Delete first)",
+          'completed': false,
+          'edit': false,
         },
       ],
     };
+  },
+  created() {
+    eventBus.$on('removetodo',(index)=>this.removetodo(index))
+    eventBus.$on('finishedEdit',(data)=>this.finishedEdit(data))
   },
   computed: {
     remaining() {
@@ -148,7 +125,8 @@ export default {
       });
       (this.newTodo = ""), this.idfortodo++;
     },
-    removetodo(index) {
+    removetodo(id) {
+      const index =this.todos.findIndex((item)=>item.id == id)
       this.todos.splice(index, 1);
     },
     edittodo(todo) {
@@ -172,7 +150,8 @@ export default {
       this.todos = this.todos.filter((todo) => !todo.completed);
     },
     finishedEdit(data) {
-      this.todos.splice(data.index, 1, data.todo)
+      const index =this.todos.findIndex((item)=>item.id == data.id)
+      this.todos.splice(index, 1, data)
     }
   },
 };

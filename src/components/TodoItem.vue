@@ -21,7 +21,7 @@
         v-focus
       />
     </div>
-    <div class="remove-item" @click="removetodo(index)">
+    <div class="remove-item" @click="removetodo(todo.id)">
       &times;
     </div>
   </div>
@@ -33,10 +33,6 @@ export default {
   props: {
     todo: {
       type: Object,
-      required: true,
-    },
-    index: {
-      type: Number,
       required: true,
     },
     checkAll:{
@@ -73,8 +69,8 @@ export default {
     },
   },
   methods: {
-    removetodo(index) {
-      this.$emit("removedTodo", index);
+    removetodo(id) {
+      eventBus.$emit("removetodo", id);
     },
     edittodo() {
       this.beforeEditCache = this.title;
@@ -85,14 +81,12 @@ export default {
         this.title = this.todo.beforeEditCache;
       }
       this.edit = false;
-      this.$emit('finishedEdit',{
-          'index': this.index,
-          'todo':{
-              id :this.id,
-              title : this.title,
-              completed:this.completed,
-              edit: this.edit
-          }
+      eventBus.$emit('finishedEdit',{
+        'id':this.id,
+        'title':this.title,
+        'completed' : this.completed,
+        'edit':this.edit
+
       })
     },
     canceledit() {
