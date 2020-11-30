@@ -18,57 +18,30 @@
       >
     </transition-group>
     <div class="extra-container">
-      <div>
-        <label>
-          <input type="checkbox" :checked="!anyremaining" @change="checkall"/>
-          Check All
-        </label>
-      </div>
-      <div>{{ remaining }} items left</div>
+      <todo-check-all :anyremaining="anyremaining"></todo-check-all>
+      <todo-item-remain :remaining="remaining"></todo-item-remain>
     </div>
     <div class="extra-container">
-      <div>
-        <button
-            class="btn btn-secondary mr-1"
-            :class="{ active: filter == 'all' }"
-            @click="filter = 'all'"
-        >
-          ALL
-        </button>
-        <button
-            class="btn btn-secondary mr-1"
-            :class="{ active: filter == 'active' }"
-            @click="filter = 'active'"
-        >
-          Active
-        </button>
-        <button
-            class="btn btn-secondary mr-1"
-            :class="{ active: filter == 'completed' }"
-            @click="filter = 'completed'"
-        >
-          Completed
-        </button>
-      </div>
-      <div>
-        <button
-            v-if="showclearall"
-            class="btn btn-success"
-            @click="clearcompleted"
-        >
-          Clear Completed
-        </button>
-      </div>
+      <todo-filter></todo-filter>
+      <todo-clear-complete :showclearall="showclearall"></todo-clear-complete>
     </div>
   </div>
 </template>
 
 <script>
 import TodoItem from './TodoItem'
+import TodoItemRemain from "@/components/TodoItemRemain";
+import TodoCheckAll from "@/components/TodoCheckAll";
+import TodoFilter from "@/components/TodoFilter";
+import TodoClearComplete from "@/components/TodoClearComplete";
 
 export default {
   name: "Todo",
   components: {
+    TodoClearComplete,
+    TodoFilter,
+    TodoCheckAll,
+    TodoItemRemain,
     TodoItem,
   },
   data() {
@@ -88,8 +61,18 @@ export default {
     };
   },
   created() {
-    eventBus.$on('removetodo',(index)=>this.removetodo(index))
-    eventBus.$on('finishedEdit',(data)=>this.finishedEdit(data))
+    eventBus.$on('removetodo', (index) => this.removetodo(index))
+    eventBus.$on('finishedEdit', (data) => this.finishedEdit(data))
+    eventBus.$on('checkall', (checked) => this.checkall())
+    eventBus.$on('filterchanged', (filter) => this.filter = filter)
+    eventBus.$on('clearcompleted', () => this.clearcompleted())
+  },
+  beforeDestroy() {
+    eventBus.$off('removetodo', (index) => this.removetodo(index))
+    eventBus.$off('finishedEdit', (data) => this.finishedEdit(data))
+    eventBus.$off('checkall', (checked) => this.checkall())
+    eventBus.$off('filterchanged', (filter) => this.filter = filter)
+    eventBus.$off('clearcompleted', () => this.clearcompleted())
   },
   computed: {
     remaining() {
@@ -126,7 +109,7 @@ export default {
       (this.newTodo = ""), this.idfortodo++;
     },
     removetodo(id) {
-      const index =this.todos.findIndex((item)=>item.id == id)
+      const index = this.todos.findIndex((item) => item.id == id)
       this.todos.splice(index, 1);
     },
     edittodo(todo) {
@@ -150,7 +133,7 @@ export default {
       this.todos = this.todos.filter((todo) => !todo.completed);
     },
     finishedEdit(data) {
-      const index =this.todos.findIndex((item)=>item.id == data.id)
+      const index = this.todos.findIndex((item) => item.id == data.id)
       this.todos.splice(index, 1, data)
     }
   },
