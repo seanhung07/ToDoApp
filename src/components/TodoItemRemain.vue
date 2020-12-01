@@ -4,11 +4,10 @@
 
 <script>
 export default {
-name: "TodoItemRemain",
-  props:{
-    remaining: {
-      type:Number,
-      required:true,
+  name: "TodoItemRemain",
+  computed: {
+    remaining() {
+      return this.$store.getters.remaining;
     }
   }
 }

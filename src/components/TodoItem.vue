@@ -3,22 +3,22 @@
     <div class="todo-list-left">
       <input type="checkbox" v-model="completed" @change="donetodo"/>
       <div
-        v-if="!edit"
-        @dblclick="edittodo"
-        class="todo-list-label"
-        :class="{ completed: completed }"
+          v-if="!edit"
+          @dblclick="edittodo"
+          class="todo-list-label"
+          :class="{ completed: completed }"
       >
         {{ title }}
       </div>
       <input
-        v-else
-        type="text"
-        v-model="title"
-        class="todo-list-edit"
-        @blur="donetodo"
-        @keyup.enter="donetodo"
-        @keyup.esc="canceledit"
-        v-focus
+          v-else
+          type="text"
+          v-model="title"
+          class="todo-list-edit"
+          @blur="donetodo"
+          @keyup.enter="donetodo"
+          @keyup.esc="canceledit"
+          v-focus
       />
     </div>
     <div class="remove-item" @click="removetodo(todo.id)">
@@ -35,9 +35,9 @@ export default {
       type: Object,
       required: true,
     },
-    checkAll:{
-        type:Boolean,
-        required:true
+    checkAll: {
+      type: Boolean,
+      required: true
     }
   },
   data() {
@@ -49,28 +49,28 @@ export default {
       beforeEditCache: "",
     };
   },
-  watch:{
-      checkAll(){
-        //   if(this.checkAll){
-        //       this.completed =true
-        //   }else{
-        //       this.completed = this.todo.completed
-        //   }
-        this.completed = this.checkAll ? true :this.todo.completed
-      }
+  watch: {
+    checkAll() {
+      //   if(this.checkAll){
+      //       this.completed =true
+      //   }else{
+      //       this.completed = this.todo.completed
+      //   }
+      this.completed = this.checkAll ? true : this.todo.completed
+    }
 
   },
   directives: {
     focus: {
       // directive definition
-      inserted: function(el) {
+      inserted: function (el) {
         el.focus();
       },
     },
   },
   methods: {
     removetodo(id) {
-      eventBus.$emit("removetodo", id);
+      this.$store.dispatch('deletetodo', id)
     },
     edittodo() {
       this.beforeEditCache = this.title;
@@ -81,13 +81,12 @@ export default {
         this.title = this.todo.beforeEditCache;
       }
       this.edit = false;
-      eventBus.$emit('finishedEdit',{
-        'id':this.id,
-        'title':this.title,
-        'completed' : this.completed,
-        'edit':this.edit
-
-      })
+      this.$store.dispatch('updatetodo', {
+        'id': this.id,
+        'title': this.title,
+        'completed': this.completed,
+        'edit': this.edit
+      } )
     },
     canceledit() {
       this.title = this.beforeEditCache;

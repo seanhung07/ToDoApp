@@ -13,15 +13,14 @@
 <script>
 export default {
 name: "TodoClearComplete",
-  props:{
-    showclearall:{
-      type:Boolean,
-      required: true,
+ computed:{
+    showclearall(){
+      return this.$store.getters.showclearall;
     }
   },
   methods:{
     clearcompleted(){
-      eventBus.$emit("clearcompleted")
+      this.$store.dispatch('clearcompleted')
     }
   }
 }
